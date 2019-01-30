@@ -20,6 +20,8 @@ public abstract class Message {
 	public static final int SGIP_DELIVER_RESP   = 0x80000004;
 	public static final int SGIP_REPORT         = 0x5;
 	public static final int SGIP_REPORT_RESP    = 0x80000005;
+	public static final int SGIP_TRACE         = 0x1000;
+	public static final int SGIP_TRACE_RESP    = 0x80001000;
 	public static final int SGIP_ACTIVE_TEST    = 0x10000001;//链路测试命令
 	public static final int SGIP_ACTIVE_TEST_RESP = 0x10000010;
 

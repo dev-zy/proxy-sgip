@@ -4,17 +4,13 @@ import java.io.IOException;
 import java.net.Socket;
 
 import org.marker.protocol.exception.ConnectionException;
-import org.marker.protocol.sgip.msg.Bind;
 import org.marker.protocol.sgip.msg.BindResp;
-import org.marker.protocol.sgip.msg.Deliver;
 import org.marker.protocol.sgip.msg.DeliverResp;
 import org.marker.protocol.sgip.msg.Message;
 import org.marker.protocol.sgip.msg.MsgHead;
-import org.marker.protocol.sgip.msg.Report;
 import org.marker.protocol.sgip.msg.ReportResp;
-import org.marker.protocol.sgip.msg.Submit;
 import org.marker.protocol.sgip.msg.SubmitResp;
-import org.marker.protocol.sgip.msg.Unbind;
+import org.marker.protocol.sgip.msg.TraceResp;
 import org.marker.protocol.sgip.msg.UnbindResp;
 
 /**
@@ -73,7 +69,7 @@ public class Connection {
 	public synchronized void open() throws IOException {
 		this.closeNotException();// 关闭并清空socket链接
 		socket = new Socket(host, port);
-		socket.setSoTimeout(2000);// 设置连接超时时间
+		socket.setSoTimeout(connectionTimeout);// 设置连接超时时间
 		out = new SGIP_OutputStream(socket.getOutputStream(), ioBufferSize);
 		in = new SGIP_InputStream(socket.getInputStream(), ioBufferSize);
 
@@ -108,23 +104,27 @@ public class Connection {
 		head.read(in);//读取消息头
 		Message msg = null;
 		switch (head.getCommand()) {
-		case -2147483647://Bind响应命令
+		case Message.SGIP_CONNECT_RESP://Bind响应命令-2147483647
 			msg = new BindResp();
 			msg.read(in);
 			break; 
-		case -2147483644:
+		case Message.SGIP_DELIVER_RESP://-2147483644
 			msg = new DeliverResp();
 			msg.read(in);
 			break; 
-		case -2147483643:
+		case Message.SGIP_REPORT_RESP://-2147483643
 			msg = new ReportResp();
 			msg.read(in);
 			break; 
-		case -2147483645:
+		case Message.SGIP_SUBMIT_RESP://-2147483645
 			msg = new SubmitResp();
 			msg.read(in);
 			break; 
-		case -2147483646:
+		case Message.SGIP_TRACE_RESP:
+			msg = new TraceResp();
+			msg.read(in);
+			break; 
+		case Message.SGIP_TERMINATE_RESP://-2147483646
 			msg = new UnbindResp();
 			msg.read(in);
 			break;

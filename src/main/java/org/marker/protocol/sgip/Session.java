@@ -15,6 +15,7 @@ import org.marker.protocol.sgip.msg.Deliver;
 import org.marker.protocol.sgip.msg.Message;
 import org.marker.protocol.sgip.msg.Report;
 import org.marker.protocol.sgip.msg.Submit;
+import org.marker.protocol.sgip.msg.Trace;
 import org.marker.protocol.sgip.msg.Unbind;
 import org.marker.protocol.sgip.thread.ListenThread;
 
@@ -109,7 +110,7 @@ public abstract class Session {
 	/**
 	 * 发送短信
 	 * @param Submit 绑定命令
-	 * @return BindResp 绑定结果
+	 * @return SubmitResp 绑定结果
 	 * */
 	public Message sendSubmit(Submit msg) throws Exception {
 		startTimer();
@@ -125,7 +126,25 @@ public abstract class Session {
 		Thread.sleep(1000L);//睡眠1秒重新发送
 		return Session.this.sendSubmit(msg);
 	}
-
+	/**
+	 * 发送被跟踪MT短消息
+	 * @param Trace 绑定命令
+	 * @return TraceResp 绑定结果
+	 * */
+	public Message sendTrace(Trace msg) throws Exception {
+		startTimer();
+		if (!isConnected() || !isBound())
+			open(bind_bak);
+		try { 
+			conn.send(msg); 
+			return conn.recv();
+		} catch (Exception e) {
+			this.connected = false;
+		}
+		bound = false;
+		Thread.sleep(1000L);//睡眠1秒重新发送
+		return Session.this.sendTrace(msg);
+	}
 	
 	
 	public void startTimer(){
